@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const { config } = require('./config/config');
 const Logging = require('./library/Logging');
 
+const userRoutes = require('./routes/User');
+
 const server = express();
 
 mongoose
@@ -55,7 +57,7 @@ const StartServer = () => {
   });
 
   /** Routes */
-  // server.use('/authors', authorRoutes);
+  server.use('/users', userRoutes);
   // server.use('/books', bookRoutes);
 
   /** Health Check */
