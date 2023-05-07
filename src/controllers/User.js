@@ -16,4 +16,11 @@ const createUser = async (req, res) => {
     .catch(error => res.status(500).json({ error }));
 };
 
-module.exports = { createUser };
+const readAll = async (req, res) => {
+  return User.find()
+    .select('-__v')
+    .then(users => res.status(200).json({ users }))
+    .catch(error => res.status(500).json({ error }));
+};
+
+module.exports = { createUser, readAll };

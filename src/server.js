@@ -5,6 +5,7 @@ const { config } = require('./config/config');
 const Logging = require('./library/Logging');
 
 const userRoutes = require('./routes/User');
+const postRoutes = require('./routes/Post');
 
 const server = express();
 
@@ -58,7 +59,7 @@ const StartServer = () => {
 
   /** Routes */
   server.use('/users', userRoutes);
-  // server.use('/books', bookRoutes);
+  server.use('/posts', postRoutes);
 
   /** Health Check */
   server.get('/ping', (req, res, next) =>
