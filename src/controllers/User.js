@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
 
     const isUserExits = await User.exists({ username });
     if (isUserExits) {
-      res.status(409).json({ success: false, message: 'User Exist' });
+      res.status(409).json({ success: false, message: 'User Already Exist' });
       return;
     }
 
@@ -31,6 +31,50 @@ const createUser = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!password || !username) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const user = await User.findOne({ username }).select(
+      '+authentication.salt +authentication.password'
+    );
+
+    if (!user._id) {
+      res.status(409).json({ success: false, message: 'User Do Not Exist' });
+      return;
+    }
+
+    const expectedHash = authentication(user.authentication.salt, password);
+    if (user.authentication.password !== expectedHash) {
+      res.send(403).json({ success: false, message: 'Wrong Password' });
+      return;
+    }
+
+    const salt = random();
+    user.authentication.sessionToken = authentication(
+      salt,
+      user._id.toString()
+    );
+    await user.save();
+
+    res.cookie('AUTH-STRANGERS-THINGS-API', user.authentication.sessionToken, {
+      domain: 'localhost',
+      path: '/',
+    });
+
+    res.status(200).json(user).end();
+    return;
+  } catch (error) {
+    res.status(500).json({ error });
+    return;
+  }
+};
+
 const readAll = async (req, res) => {
   return User.find()
     .select('-__v')
@@ -38,4 +82,4 @@ const readAll = async (req, res) => {
     .catch(error => res.status(500).json({ error }));
 };
 
-module.exports = { createUser, readAll };
+module.exports = { createUser, readAll, loginUser };
