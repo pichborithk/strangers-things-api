@@ -77,6 +77,15 @@ const loginUser = async (req, res) => {
 
 const readAll = async (req, res) => {
   return User.find()
+    .populate({
+      path: 'posts',
+      select: '-__v',
+      populate: {
+        path: 'comments',
+        model: 'Comment',
+        select: '-updatedAt -createdAt -__v -onPost',
+      },
+    })
     .select('-__v')
     .then(users => res.status(200).json({ users }))
     .catch(error => res.status(500).json({ error }));
