@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 
 const { config } = require('./config/config');
 const Logging = require('./library/Logging');
@@ -38,6 +39,7 @@ const StartServer = () => {
 
   server.use(express.urlencoded({ extended: true }));
   server.use(express.json());
+  server.use(cookieParser());
 
   // Rules of our API
   server.use((req, res, next) => {
