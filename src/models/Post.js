@@ -8,7 +8,9 @@ const PostSchema = new mongoose.Schema(
       require: true,
       ref: 'User',
     },
-    comments: { type: [{ type: mongoose.Schema.Types.ObjectId }] },
+    comments: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+    },
   },
   {
     timestamps: true,

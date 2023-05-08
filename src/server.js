@@ -6,6 +6,7 @@ const Logging = require('./library/Logging');
 
 const userRoutes = require('./routes/User');
 const postRoutes = require('./routes/Post');
+const commentRoutes = require('./routes/Comment');
 
 const server = express();
 
@@ -60,6 +61,7 @@ const StartServer = () => {
   /** Routes */
   server.use('/users', userRoutes);
   server.use('/posts', postRoutes);
+  server.use('/comments', commentRoutes);
 
   /** Health Check */
   server.get('/ping', (req, res, next) =>
