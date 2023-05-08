@@ -5,7 +5,6 @@ const User = require('../models/User');
 const createPost = async (req, res) => {
   try {
     const sessionToken = req.cookies['AUTH-STRANGERS-THINGS-API'];
-    console.log(sessionToken);
     if (!sessionToken) {
       res
         .status(403)
@@ -16,19 +15,29 @@ const createPost = async (req, res) => {
     const user = await User.findOne({
       'authentication.sessionToken': sessionToken,
     });
-    console.log(user);
 
     if (!user._id) {
       res.status(403).json({ success: false, message: 'Unauthorized' });
       return;
     }
 
-    const { title } = req.body;
+    const { title, description, price, willDeliver, location } = req.body;
+
+    if (!title || !description || !price || typeof willDeliver !== 'boolean') {
+      res.status(400).json({ success: false, message: 'Missing information' });
+      return;
+    }
+
     const post = new Post({
       _id: new mongoose.Types.ObjectId(),
       title,
+      description,
+      price,
+      willDeliver,
+      location: location ? location : '[On Request]',
       author: user._id,
     });
+
     user.posts.push(post._id);
     await post.save();
     await user.save();
@@ -38,17 +47,6 @@ const createPost = async (req, res) => {
     res.status(500).json({ error });
     return;
   }
-
-  // const post = new Post({
-  //   _id: new mongoose.Types.ObjectId(),
-  //   title,
-  //   author,
-  // });
-
-  // return post
-  //   .save()
-  //   .then(post => res.status(201).json({ post }))
-  //   .catch(error => res.status(500).json({ error }));
 };
 
 const readAll = async (req, res) => {
@@ -60,7 +58,7 @@ const readAll = async (req, res) => {
       populate: {
         path: 'fromUser',
         model: 'User',
-        select: '-updatedAt -createdAt -__v',
+        select: '-updatedAt -createdAt -__v -messages -posts',
       },
     })
     .select('-__v')
