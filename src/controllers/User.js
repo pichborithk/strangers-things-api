@@ -7,7 +7,7 @@ const createUser = async (req, res) => {
     const { username, password } = req.body;
 
     if (!password || !username) {
-      res.sendStatus(400);
+      res.status(400).json({ success: false, message: 'Missing information' });
       return;
     }
 
