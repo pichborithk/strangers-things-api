@@ -51,20 +51,37 @@ const createPost = async (req, res) => {
 };
 
 const readAll = async (req, res) => {
-  return Post.find()
-    .populate('author', '-__v -updatedAt -createdAt -posts -messages')
-    .populate({
-      path: 'comments',
-      select: '-updatedAt -createdAt -onPost',
-      populate: {
-        path: 'fromUser',
-        model: 'User',
-        select: '-updatedAt -createdAt -__v -messages -posts',
-      },
-    })
-    .select('-__v')
-    .then(posts => res.status(200).json({ posts }))
-    .catch(error => res.status(500).json({ error }));
+  try {
+    const posts = await Post.find()
+      .populate('author', '-__v -updatedAt -createdAt -posts -messages')
+      .populate({
+        path: 'comments',
+        select: '-updatedAt -createdAt -onPost',
+        populate: {
+          path: 'fromUser',
+          model: 'User',
+          select: '-updatedAt -createdAt -__v -messages -posts',
+        },
+      })
+      .select('-__v');
+    const sessionToken = req.headers.authorization;
+
+    const user = await User.findOne({
+      'authentication.sessionToken': sessionToken,
+    });
+
+    posts.forEach(post => {
+      if (user && post.author.id === user.id) {
+        post.isAuthor = true;
+      }
+    });
+
+    res.status(200).json({ success: true, data: posts });
+    return;
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+    return;
+  }
 };
 
 module.exports = { createPost, readAll };
