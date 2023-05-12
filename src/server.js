@@ -39,7 +39,7 @@ const StartServer = () => {
 
   server.use(express.urlencoded({ extended: true }));
   server.use(express.json());
-  server.use(cookieParser());
+  // server.use(cookieParser());
 
   // Rules of our API
   server.use((req, res, next) => {
@@ -61,9 +61,9 @@ const StartServer = () => {
   });
 
   /** Routes */
-  server.use('/users', userRoutes);
-  server.use('/posts', postRoutes);
-  server.use('/comments', commentRoutes);
+  server.use('/api/users', userRoutes);
+  server.use('/api/posts', postRoutes);
+  server.use('/api/comments', commentRoutes);
 
   /** Health Check */
   server.get('/ping', (req, res, next) =>

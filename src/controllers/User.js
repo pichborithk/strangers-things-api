@@ -24,7 +24,11 @@ const createUser = async (req, res) => {
       authentication: { password: authentication(salt, password), salt },
     });
     await user.save();
-    res.status(201).json({ user });
+    res.status(201).json({
+      success: true,
+      message: 'Thanks for signing up for our service',
+      user,
+    });
   } catch (error) {
     res.status(500).json({ error });
     return;
@@ -62,12 +66,19 @@ const loginUser = async (req, res) => {
     );
     await user.save();
 
-    res.cookie('AUTH-STRANGERS-THINGS-API', user.authentication.sessionToken, {
-      domain: 'localhost',
-      path: '/',
-    });
+    // res.cookie('AUTH-STRANGERS-THINGS-API', user.authentication.sessionToken, {
+    //   domain: 'localhost',
+    //   path: '/',
+    // });
 
-    res.status(200).json(user).end();
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: 'Thanks for logging in to our service',
+        data: { token: user.authentication.sessionToken },
+      })
+      .end();
     return;
   } catch (error) {
     res.status(500).json({ error });

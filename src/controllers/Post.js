@@ -4,7 +4,8 @@ const User = require('../models/User');
 
 const createPost = async (req, res) => {
   try {
-    const sessionToken = req.cookies['AUTH-STRANGERS-THINGS-API'];
+    // const sessionToken = req.cookies['AUTH-STRANGERS-THINGS-API'];
+    const sessionToken = req.headers.authorization;
     if (!sessionToken) {
       res
         .status(403)
