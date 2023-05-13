@@ -16,6 +16,7 @@ const PostSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     },
     isAuthor: { type: Boolean, default: false },
+    active: { type: Boolean, default: true },
   },
   {
     timestamps: true,
