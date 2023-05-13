@@ -86,4 +86,53 @@ const readAll = async (req, res) => {
   }
 };
 
-module.exports = { createPost, readAll };
+const updatePost = async (req, res) => {
+  const sessionToken = req.headers.authorization;
+  if (!sessionToken) {
+    res.status(403).json({ success: false, message: 'Please login to edit' });
+    return;
+  }
+
+  const { postId } = req.params;
+
+  if (!postId) {
+    res.status(403).json({ success: false, message: 'Post does not exist' });
+    return;
+  }
+
+  const post = await Post.findById(postId)
+    .populate('author', '-__v -updatedAt -createdAt -posts -messages -username')
+    .select('-__v');
+
+  if (!post || !post._id) {
+    res.status(403).json({ success: false, message: 'Post does not exist' });
+    return;
+  }
+
+  const { title, description, price, willDeliver, location } = req.body;
+
+  if (!title || !description || !price || typeof willDeliver !== 'boolean') {
+    res.status(400).json({ success: false, message: 'Missing information' });
+    return;
+  }
+
+  const user = await User.findOne({
+    'authentication.sessionToken': sessionToken,
+  });
+
+  if (!user._id || user.id !== post.author.id) {
+    res.status(403).json({ success: false, message: 'Unauthorized' });
+    return;
+  }
+  post.title = title;
+  post.description = description;
+  post.price = price;
+  post.willDeliver = willDeliver;
+  post.location = location;
+  await post.save();
+
+  res.status(200).json({ success: true, data: post });
+  return;
+};
+
+module.exports = { createPost, readAll, updatePost };
