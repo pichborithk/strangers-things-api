@@ -102,4 +102,26 @@ const readAll = async (req, res) => {
     .catch(error => res.status(500).json({ error }));
 };
 
-module.exports = { createUser, readAll, loginUser };
+const readUser = async (req, res) => {
+  const sessionToken = req.headers.authorization;
+  if (!sessionToken) {
+    res.status(403).json({ success: false, message: 'Please login...' });
+    return;
+  }
+
+  return User.findOne({ 'authentication.sessionToken': sessionToken })
+    .populate({
+      path: 'posts',
+      select: '-__v',
+      populate: {
+        path: 'comments',
+        model: 'Comment',
+        select: '-updatedAt -createdAt -__v -onPost',
+      },
+    })
+    .select('-__v')
+    .then(user => res.status(200).json({ success: true, data: user }))
+    .catch(error => res.status(500).json({ success: false, error }));
+};
+
+module.exports = { createUser, readAll, loginUser, readUser };
