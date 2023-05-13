@@ -8,6 +8,7 @@ const Logging = require('./library/Logging');
 const userRoutes = require('./routes/User');
 const postRoutes = require('./routes/Post');
 const commentRoutes = require('./routes/Comment');
+const messageRoutes = require('./routes/Message');
 
 const server = express();
 
@@ -64,6 +65,7 @@ const StartServer = () => {
   server.use('/api/users', userRoutes);
   server.use('/api/posts', postRoutes);
   server.use('/api/comments', commentRoutes);
+  server.use('/api/messages', messageRoutes);
 
   /** Health Check */
   server.get('/ping', (req, res, next) =>

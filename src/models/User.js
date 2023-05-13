@@ -9,8 +9,25 @@ const UserSchema = new mongoose.Schema(
       sessionToken: { type: String, select: false },
     },
     posts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }] },
-    messages: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+    conversations: {
+      type: [
+        {
+          type: {
+            withUser: {
+              type: mongoose.Schema.Types.ObjectId,
+              require: true,
+              Ref: 'User',
+            },
+            messages: [
+              {
+                type: mongoose.Schema.Types.ObjectId,
+                require: true,
+                ref: 'Message',
+              },
+            ],
+          },
+        },
+      ],
     },
   },
   {

@@ -17,15 +17,11 @@ const createComment = async (req, res) => {
     const user = await User.findOne({
       'authentication.sessionToken': sessionToken,
     });
-    if (!user._id) {
-      res.status(403).json({ success: false, message: 'Unauthorized' });
-      return;
-    }
 
     const { postId } = req.params;
 
-    if (!postId) {
-      res.status(403).json({ success: false, message: 'Post does not exist' });
+    if (!user._id || !postId) {
+      res.status(403).json({ success: false, message: 'Unauthorized' });
       return;
     }
 
