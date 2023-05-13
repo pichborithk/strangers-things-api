@@ -5,7 +5,8 @@ const User = require('../models/User');
 
 const createComment = async (req, res) => {
   try {
-    const sessionToken = req.cookies['AUTH-STRANGERS-THINGS-API'];
+    // const sessionToken = req.cookies['AUTH-STRANGERS-THINGS-API'];
+    const sessionToken = req.headers.authorization;
     if (!sessionToken) {
       res
         .status(403)
@@ -21,16 +22,23 @@ const createComment = async (req, res) => {
       return;
     }
 
-    const { content, onPost } = req.body;
+    const { postId } = req.params;
 
-    if (!content || !onPost) {
-      res.sendStatus(400);
+    if (!postId) {
+      res.status(403).json({ success: false, message: 'Post does not exist' });
       return;
     }
 
-    const post = await Post.findById(onPost);
-    if (!post._id) {
+    const post = await Post.findById(postId);
+    if (!post || !post._id || !post.active) {
       res.status(404).json({ success: false, message: 'Post does not exist' });
+      return;
+    }
+
+    const { content } = req.body;
+
+    if (!content) {
+      res.sendStatus(400);
       return;
     }
 
@@ -38,17 +46,21 @@ const createComment = async (req, res) => {
       _id: new mongoose.Types.ObjectId(),
       content,
       fromUser: user._id,
-      onPost,
+      onPost: postId,
     });
 
     post.comments.push(comment._id);
 
     await post.save();
     await comment.save();
-    res.status(201).json({ comment });
+    res.status(201).json({
+      success: true,
+      message: 'Success add new comment',
+      data: comment,
+    });
     return;
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ success: false, error });
     return;
   }
 };
