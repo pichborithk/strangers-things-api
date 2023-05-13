@@ -42,10 +42,12 @@ const createPost = async (req, res) => {
     user.posts.push(post._id);
     await post.save();
     await user.save();
-    res.status(201).json({ post });
+    res
+      .status(201)
+      .json({ success: true, message: 'Success add new post', data: post });
     return;
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ success: false, error });
     return;
   }
 };
