@@ -24,20 +24,19 @@ const createMessage = async (req, res) => {
       return;
     }
 
-    const { receiverId } = req.params;
-    const receiver = await User.findById(receiverId).populate({
+    const { content, receiverName } = req.body;
+    if (!content) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const receiver = await User.findOne({ username: receiverName }).populate({
       path: 'conversations',
       populate: { path: 'withUser', model: 'User' },
     });
 
     if (!receiver || !receiver._id) {
       res.status(404).json({ success: false, message: 'User does not exist' });
-      return;
-    }
-
-    const { content } = req.body;
-    if (!content) {
-      res.sendStatus(400);
       return;
     }
 
