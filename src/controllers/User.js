@@ -110,15 +110,34 @@ const readUser = async (req, res) => {
   }
 
   return User.findOne({ 'authentication.sessionToken': sessionToken })
-    .populate({
-      path: 'posts',
-      select: '-__v',
-      populate: {
-        path: 'comments',
-        model: 'Comment',
-        select: '-updatedAt -createdAt -__v -onPost',
+    .populate([
+      {
+        path: 'posts',
+        select: '-__v',
+        populate: {
+          path: 'comments',
+          model: 'Comment',
+          select: '-updatedAt -createdAt -__v -onPost',
+        },
       },
-    })
+      {
+        path: 'conversations',
+        select: '-__v',
+        populate: {
+          path: 'withUser',
+          model: 'User',
+          select: '-updatedAt -createdAt -__v -posts -conversations',
+        },
+      },
+      {
+        path: 'conversations',
+        select: '-__v',
+        populate: {
+          path: 'messages',
+          model: 'Message',
+        },
+      },
+    ])
     .select('-__v')
     .then(user => res.status(200).json({ success: true, data: user }))
     .catch(error => res.status(500).json({ success: false, error }));
