@@ -123,19 +123,22 @@ const readUser = async (req, res) => {
       {
         path: 'conversations',
         select: '-__v',
-        populate: {
-          path: 'withUser',
-          model: 'User',
-          select: '-updatedAt -createdAt -__v -posts -conversations',
-        },
-      },
-      {
-        path: 'conversations',
-        select: '-__v',
-        populate: {
-          path: 'messages',
-          model: 'Message',
-        },
+        populate: [
+          {
+            path: 'withUser',
+            model: 'User',
+            select: '-updatedAt -createdAt -__v -posts -conversations',
+          },
+          {
+            path: 'messages',
+            model: 'Message',
+            populate: {
+              path: 'fromUser',
+              model: 'User',
+              select: '-updatedAt -createdAt -__v -posts -conversations',
+            },
+          },
+        ],
       },
     ])
     .select('-__v')
