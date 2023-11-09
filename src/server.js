@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 
 const { config } = require('./config/config');
 const Logging = require('./library/Logging');
+const { job } = require('./cron.js');
 
 const userRoutes = require('./routes/User');
 const postRoutes = require('./routes/Post');
@@ -82,6 +83,8 @@ const StartServer = () => {
       message: error.message,
     });
   });
+
+  job.start();
 
   server.listen(config.server.port, () =>
     Logging.info(`Server is running on port ${config.server.port}`)
